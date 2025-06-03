@@ -1,32 +1,19 @@
-name: SonarCloud Analysis
-
+name: Build
 on:
   push:
     branches:
-      - main  # Или ваша основная ветка
-
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
-  sonarcloud:
-    runs-on: windows-latest # Или ubuntu-latest
-
+  sonarqube:
+    name: SonarQube
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones не работают с SonarCloud
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'adoptium'
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@master
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Используем секрет из GitHub
-          SONAR_HOST_URL: "https://sonarcloud.io"   # Явно указываем URL SonarCloud
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Для интеграции с GitHub (опционально, но рекомендуется)
-        with:
-          args: >
-            -Dsonar.organization=https://sonarcloud.io/account/organizations  # Замените!
-            -Dsonar.projectKey=SONAR_TOKEN   # Замените!
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
